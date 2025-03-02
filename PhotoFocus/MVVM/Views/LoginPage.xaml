@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="PhotoFocus.MVVM.Views.LoginPage"
+    Title="Login"
+    xmlns:viewmodels="clr-namespace:PhotoFocus.MVVM.ViewModels">
+
+    <ContentPage.BindingContext>
+        <viewmodels:LoginViewModel />
+    </ContentPage.BindingContext>
+
+    <VerticalStackLayout Padding="20" Spacing="15">
+        <Label Text="Username" />
+        <Entry Text="{Binding Username}" Placeholder="Enter username" />
+
+        <Label Text="Password" />
+        <Entry Text="{Binding Password}" Placeholder="Enter password" IsPassword="True" />
+
+        <Button Text="Login" Command="{Binding LoginCommand}" />
+        <Button Text="Go to Register" Command="{Binding GoToRegisterCommand}" />
+
+        <Label Text="{Binding Message}" TextColor="Red"/>
+    </VerticalStackLayout>
+</ContentPage>
