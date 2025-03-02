@@ -19,7 +19,7 @@ namespace PhotoFocus.Services
                 if (_database == null)
                 {
                     // Path to local database
-                    var dbPath = Path.Combine(FileSystem.AppDataDirectory, "PhotoFocusDB.db3");
+                    var dbPath = Path.Combine(FileSystem.AppDataDirectory, "PhotoFocusDB2.db3");
                     _database = new SQLiteAsyncConnection(dbPath);
                 }
                 return _database;

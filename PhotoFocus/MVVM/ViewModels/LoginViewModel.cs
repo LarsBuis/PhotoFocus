@@ -46,7 +46,8 @@ namespace PhotoFocus.MVVM.ViewModels
             bool isValid = await DatabaseService.LoginUser(Username, Password);
             if (isValid)
             {
-                await Application.Current.MainPage.Navigation.PushAsync(new MainPage());
+                Application.Current.MainPage = new MainPage();
+
             }
             else
             {

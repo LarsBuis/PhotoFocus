@@ -1,25 +1,17 @@
-﻿namespace PhotoFocus
-{
-    public partial class MainPage : ContentPage
-    {
-        int count = 0;
+﻿using Microsoft.Maui.Controls.PlatformConfiguration;
+using Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;
 
+namespace PhotoFocus
+{
+    public partial class MainPage : Microsoft.Maui.Controls.TabbedPage
+    {
         public MainPage()
         {
             InitializeComponent();
-        }
 
-        private void OnCounterClicked(object sender, EventArgs e)
-        {
-            count++;
-
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
-
-            SemanticScreenReader.Announce(CounterBtn.Text);
+            // Force the tabs to show at the bottom on Android
+            On<Microsoft.Maui.Controls.PlatformConfiguration.Android>()
+                .SetToolbarPlacement(ToolbarPlacement.Bottom);
         }
     }
-
 }

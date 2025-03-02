@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentPage 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="PhotoFocus.MVVM.Views.ProfilePage"
+    Title="Profile"
+    xmlns:viewmodels="clr-namespace:PhotoFocus.MVVM.ViewModels">
+
+    <ContentPage.BindingContext>
+        <viewmodels:ProfileViewModel />
+    </ContentPage.BindingContext>
+
+    <VerticalStackLayout Padding="20" Spacing="15">
+
+        <!-- Display Username -->
+        <Label Text="{Binding CurrentUser.Username}" 
+               FontAttributes="Bold"
+               FontSize="24"
+               HorizontalOptions="Center" />
+
+        <!-- Display Profile Picture -->
+        <Image Source="{Binding CurrentUser.ProfilePictureUrl}"
+               WidthRequest="150" HeightRequest="150"
+               Aspect="AspectFill"
+               HorizontalOptions="Center">
+            <!-- Tap to change the image -->
+            <Image.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding ChangeProfilePictureCommand}" />
+            </Image.GestureRecognizers>
+        </Image>
+
+        <!-- Optional: button for changing the picture instead of tapping -->
+        <!--<Button Text="Change Picture" Command="{Binding ChangeProfilePictureCommand}" />-->
+
+    </VerticalStackLayout>
+</ContentPage>

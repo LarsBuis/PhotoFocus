@@ -1,6 +1,26 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true"></application>
-	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-	<uses-permission android:name="android.permission.INTERNET" />
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.companyname.photofocus">
+
+  <!-- REQUIRED PERMISSIONS FOR CAMERA AND EXTERNAL STORAGE -->
+  <uses-permission android:name="android.permission.CAMERA" />
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+  <!-- Other common permissions (e.g., Internet if needed) -->
+  <uses-permission android:name="android.permission.INTERNET" />
+
+  <application android:label="PhotoFocus"
+               android:usesCleartextTraffic="true"
+               android:allowBackup="true"
+               android:icon="@mipmap/appicon"
+               android:roundIcon="@mipmap/appicon_round"
+               android:theme="@style/Maui.SplashTheme">
+
+    <!-- Keep existing Maui settings, if any -->
+    <meta-data android:name="com.microsoft.maui.essentials" android:value="true" />
+
+    <!-- Activities, receivers, providers, and other Android components as needed -->
+
+  </application>
 </manifest>
