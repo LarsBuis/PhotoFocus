@@ -1,7 +1,8 @@
-﻿using System.Windows.Input;
+﻿using Microsoft.Maui.Storage;
 using PhotoFocus.MVVM.Models;
-using PhotoFocus.MVVM.ViewModels;
+using PhotoFocus.MVVM.Views;
 using PhotoFocus.Services;
+using System.Windows.Input;
 
 namespace PhotoFocus.MVVM.ViewModels
 {
@@ -16,28 +17,39 @@ namespace PhotoFocus.MVVM.ViewModels
 
         public ICommand ChangeProfilePictureCommand { get; }
 
+        // 1) NEW: Add a LogoutCommand property
+        public ICommand LogoutCommand { get; }
+
         public ProfileViewModel()
         {
-            // For demo, let's just load the first user from the DB
-            // In a real app, you'd identify which user is logged in
+            // For demonstration, just load the first user
+            // In a real app, you'd identify the actual logged-in user
             LoadUser();
 
+            // Existing command to change profile pic
             ChangeProfilePictureCommand = new Command(async () => await OnChangeProfilePicture());
+
+            // 2) NEW: Initialize the LogoutCommand
+            LogoutCommand = new Command(OnLogout);
         }
 
         private async void LoadUser()
         {
+            // Load a user from DB (for demo, just fetch the first user found)
             var users = await DatabaseService.Database.Table<User>().ToListAsync();
-
-            // For demonstration, just pick the first user
-            // In a real app, retrieve the actual logged-in user
             CurrentUser = users.FirstOrDefault();
+        }
+
+        // 3) NEW: OnLogout removes the stored userId and navigates to LoginPage
+        private void OnLogout()
+        {
+            SecureStorage.Default.Remove("userId");
+            Application.Current.MainPage = new LoginPage();
         }
 
         private async Task OnChangeProfilePicture()
         {
-            // Option A: Let the user pick from gallery or take photo in one step
-            // or Option B: Provide two separate buttons or prompts
+            // Prompts user to pick from gallery or take photo
             var action = await App.Current.MainPage.DisplayActionSheet(
                 "Change profile picture",
                 "Cancel", null,
@@ -66,7 +78,6 @@ namespace PhotoFocus.MVVM.ViewModels
 
                 if (result != null)
                 {
-                    // Copy the file to the local app data directory
                     var newFilePath = await CopyFileToLocalPath(result);
                     CurrentUser.ProfilePictureUrl = newFilePath;
                     await UpdateUserInDatabase();
@@ -74,7 +85,6 @@ namespace PhotoFocus.MVVM.ViewModels
             }
             catch (Exception ex)
             {
-                // Handle exceptions, e.g. user canceled or permissions issue
                 Console.WriteLine(ex);
             }
         }
@@ -93,14 +103,13 @@ namespace PhotoFocus.MVVM.ViewModels
             }
             catch (Exception ex)
             {
-                // Handle camera not available, permissions, cancellation, etc.
                 Console.WriteLine(ex);
             }
         }
 
         private async Task<string> CopyFileToLocalPath(FileResult file)
         {
-            // Create a unique filename and path in the local folder
+            // Create a unique filename in the local folder
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
             var localPath = Path.Combine(FileSystem.AppDataDirectory, fileName);
 
@@ -115,7 +124,7 @@ namespace PhotoFocus.MVVM.ViewModels
 
         private async Task UpdateUserInDatabase()
         {
-            // Update the user's info in SQLite
+            // Update the user in the SQLite DB
             await DatabaseService.Database.UpdateAsync(CurrentUser);
         }
     }

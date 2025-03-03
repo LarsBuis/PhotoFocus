@@ -1,9 +1,14 @@
-namespace PhotoFocus.MVVM.Views;
+using PhotoFocus.MVVM.ViewModels;
 
-public partial class ProfilePage : ContentPage
+namespace PhotoFocus.MVVM.Views
 {
-	public ProfilePage()
-	{
-		InitializeComponent();
-	}
+    public partial class ProfilePage : ContentPage
+    {
+        public ProfilePage()
+        {
+            InitializeComponent();
+
+            BindingContext = new ProfileViewModel();
+        }
+    }
 }

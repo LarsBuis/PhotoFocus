@@ -1,5 +1,5 @@
-﻿using PhotoFocus.MVVM.Views;
-using PhotoFocus.Services;
+﻿using Microsoft.Maui.Storage;
+using PhotoFocus.MVVM.Views;
 
 namespace PhotoFocus
 {
@@ -9,9 +9,19 @@ namespace PhotoFocus
         {
             InitializeComponent();
 
-            DatabaseService.InitializeAsync();
+            // Synchronous read from SecureStorage
+            var userId = SecureStorage.Default.GetAsync("userId")
+                                             .GetAwaiter()
+                                             .GetResult();
 
-            MainPage = new NavigationPage(new LoginPage());
+            if (!string.IsNullOrEmpty(userId))
+            {
+                MainPage = new NavigationPage(new MainPage());
+            }
+            else
+            {
+                MainPage = new NavigationPage(new LoginPage());
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using PhotoFocus.MVVM.Views;
+﻿using PhotoFocus.MVVM.Models;
+using PhotoFocus.MVVM.Views;
 using PhotoFocus.Services;
 using System;
 using System.Collections.Generic;
@@ -46,14 +47,26 @@ namespace PhotoFocus.MVVM.ViewModels
             bool isValid = await DatabaseService.LoginUser(Username, Password);
             if (isValid)
             {
-                Application.Current.MainPage = new MainPage();
+                // 1) Fetch the user record from DB
+                var user = await DatabaseService.Database.Table<User>()
+                    .Where(u => u.Username == Username)
+                    .FirstOrDefaultAsync();
 
+                // 2) Store the user’s ID in SecureStorage so we remember them
+                if (user != null)
+                {
+                    await SecureStorage.Default.SetAsync("userId", user.Id.ToString());
+                }
+
+                // 3) Navigate to the main page
+                Application.Current.MainPage = new MainPage();
             }
             else
             {
                 Message = "Invalid username or password.";
             }
         }
+
 
         private async Task OnGoToRegister()
         {

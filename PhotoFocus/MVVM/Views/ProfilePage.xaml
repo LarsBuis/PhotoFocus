@@ -1,36 +1,37 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ContentPage 
-    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    x:Class="PhotoFocus.MVVM.Views.ProfilePage"
-    Title="Profile"
-    xmlns:viewmodels="clr-namespace:PhotoFocus.MVVM.ViewModels">
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PhotoFocus.MVVM.Views.ProfilePage"
+             Title="Profile">
 
-    <ContentPage.BindingContext>
-        <viewmodels:ProfileViewModel />
-    </ContentPage.BindingContext>
+    <VerticalStackLayout Padding="20" Spacing="25">
 
-    <VerticalStackLayout Padding="20" Spacing="15">
-
-        <!-- Display Username -->
-        <Label Text="{Binding CurrentUser.Username}" 
-               FontAttributes="Bold"
+        <!-- Example title -->
+        <Label Text="Profile Page"
                FontSize="24"
                HorizontalOptions="Center" />
 
-        <!-- Display Profile Picture -->
+        <!-- Display the user's profile picture -->
         <Image Source="{Binding CurrentUser.ProfilePictureUrl}"
-               WidthRequest="150" HeightRequest="150"
+               HeightRequest="100"
+               WidthRequest="100"
                Aspect="AspectFill"
-               HorizontalOptions="Center">
-            <!-- Tap to change the image -->
-            <Image.GestureRecognizers>
-                <TapGestureRecognizer Command="{Binding ChangeProfilePictureCommand}" />
-            </Image.GestureRecognizers>
-        </Image>
+               HorizontalOptions="Center" />
 
-        <!-- Optional: button for changing the picture instead of tapping -->
-        <!--<Button Text="Change Picture" Command="{Binding ChangeProfilePictureCommand}" />-->
+        <!-- Display the user's username -->
+        <Label Text="{Binding CurrentUser.Username}"
+               FontAttributes="Bold"
+               HorizontalOptions="Center" />
 
+        <!-- Button to change profile picture -->
+        <Button Text="Change Profile Picture"
+                Command="{Binding ChangeProfilePictureCommand}" />
+
+        <!-- New: Logout button -->
+        <Button Text="Logout"
+                Command="{Binding LogoutCommand}"
+                BackgroundColor="Red"
+                TextColor="White"
+                HorizontalOptions="Center" />
     </VerticalStackLayout>
 </ContentPage>
