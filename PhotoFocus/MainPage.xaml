@@ -25,5 +25,11 @@
                 <views:ProfilePage />
             </x:Arguments>
         </NavigationPage>
+
+        <NavigationPage Title="Upload">
+            <x:Arguments>
+                <views:UploadPhotoPage />
+            </x:Arguments>
+        </NavigationPage>
     </TabbedPage.Children>
 </TabbedPage>

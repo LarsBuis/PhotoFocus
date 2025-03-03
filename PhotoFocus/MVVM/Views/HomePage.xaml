@@ -1,12 +1,44 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="PhotoFocus.MVVM.Views.HomePage"
-             Title="HomePage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI! Home"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
+<?xml version="1.0" encoding="utf-8"?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="PhotoFocus.MVVM.Views.HomePage"
+    xmlns:viewmodels="clr-namespace:PhotoFocus.MVVM.ViewModels">
+
+    <ContentPage.BindingContext>
+        <viewmodels:HomeViewModel />
+    </ContentPage.BindingContext>
+
+    <VerticalStackLayout Padding="20" Spacing="10">
+
+        <!-- Category Filter -->
+        <Label Text="Filter by Category:" FontAttributes="Bold" />
+        <Picker ItemsSource="{Binding FilterCategories}"
+                ItemDisplayBinding="{Binding Name}"
+                SelectedItem="{Binding SelectedFilterCategory}"
+                Title="All Photos" />
+
+        <!-- Title or instructions -->
+        <Label Text="{Binding FilterTitle}" FontAttributes="Bold" FontSize="24" />
+
+        <!-- List of Photos -->
+        <CollectionView ItemsSource="{Binding FilteredPhotos}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <StackLayout Padding="5">
+                        <!-- Display the photo -->
+                        <Image Source="{Binding Photo.FilePath}" HeightRequest="150" Aspect="AspectFill" />
+
+                        <!-- Display user name and upload date -->
+                        <Label Text="{Binding User.Username}" FontAttributes="Bold" />
+                        <Label Text="{Binding Photo.UploadedAt, StringFormat='{0:dd MMM yyyy HH:mm}'}" FontSize="12" />
+
+                        <!-- (Optional) Show the category name below each photo -->
+                        <Label Text="{Binding Category.Name}" FontSize="12" />
+                    </StackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
     </VerticalStackLayout>
 </ContentPage>

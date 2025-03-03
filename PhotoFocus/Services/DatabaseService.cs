@@ -29,7 +29,43 @@ namespace PhotoFocus.Services
         public static async Task InitializeAsync()
         {
             await Database.CreateTableAsync<User>();
+            await Database.CreateTableAsync<Category>();
+            await Database.CreateTableAsync<Photo>();
+
+            await SeedCategoriesAsync();
         }
+
+        private static async Task SeedCategoriesAsync()
+        {
+            var categories = await Database.Table<Category>().ToListAsync();
+            if (!categories.Any())
+            {
+                // Insert default categories
+                await Database.InsertAllAsync(new List<Category>
+        {
+            new Category { Name = "Black and White" },
+            new Category { Name = "Night" },
+            new Category { Name = "Underwater" },
+            new Category { Name = "Nature" },
+            new Category { Name = "Portrait" }
+        });
+            }
+        }
+
+        public static async Task<bool> AddPhoto(int userId, int categoryId, string filePath)
+        {
+            var photo = new Photo
+            {
+                FilePath = filePath,
+                UserId = userId,
+                CategoryId = categoryId,
+                UploadedAt = DateTime.Now
+            };
+
+            int result = await Database.InsertAsync(photo);
+            return result > 0;
+        }
+
 
         public static async Task<bool> RegisterUser(string username, string password)
         {
@@ -63,6 +99,16 @@ namespace PhotoFocus.Services
                 .FirstOrDefaultAsync();
 
             return user != null;
+        }
+
+        public static async Task<User> ValidateUserAndGetAsync(string username, string password)
+        {
+            var user = await Database.Table<User>()
+                .Where(u => u.Username == username && u.Password == password)
+                .FirstOrDefaultAsync();
+
+            // If user is found and password matches, return it; else null
+            return user;
         }
     }
 }

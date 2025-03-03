@@ -1,12 +1,43 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="PhotoFocus.MVVM.Views.ChallengesPage"
-             Title="ChallengesPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
+<?xml version="1.0" encoding="utf-8"?>
+<ContentPage 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="PhotoFocus.MVVM.Views.ChallengesPage"
+    xmlns:viewmodels="clr-namespace:PhotoFocus.MVVM.ViewModels">
+
+    <ContentPage.BindingContext>
+        <viewmodels:ChallengesViewModel />
+    </ContentPage.BindingContext>
+
+    <VerticalStackLayout Padding="20" Spacing="10">
+
+        <Label Text="Categories" FontAttributes="Bold" FontSize="24" />
+
+        <!-- Category List -->
+        <CollectionView ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" SelectionMode="Single">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <StackLayout Padding="5">
+                        <Label Text="{Binding Name}" FontSize="18" />
+                    </StackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Show Photos for Selected Category -->
+        <Label Text="{Binding CategoryTitle}" FontAttributes="Bold" FontSize="20" />
+
+        <CollectionView ItemsSource="{Binding CategoryPhotos}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <StackLayout Padding="5">
+                        <Image Source="{Binding Photo.FilePath}" HeightRequest="150" />
+                        <Label Text="{Binding User.Username}" FontAttributes="Bold" />
+                        <Label Text="{Binding Photo.UploadedAt, StringFormat='{0:dd MMM yyyy HH:mm}'}" FontSize="12" />
+                    </StackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
     </VerticalStackLayout>
 </ContentPage>
