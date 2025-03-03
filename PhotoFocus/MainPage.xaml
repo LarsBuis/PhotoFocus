@@ -14,9 +14,9 @@
             </x:Arguments>
         </NavigationPage>
 
-        <NavigationPage Title="Challenges">
+        <NavigationPage Title="Shop">
             <x:Arguments>
-                <views:ChallengesPage />
+                <views:ShopPage />
             </x:Arguments>
         </NavigationPage>
 
