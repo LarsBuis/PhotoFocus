@@ -1,9 +1,13 @@
-namespace PhotoFocus.MVVM.Views;
+using PhotoFocus.MVVM.ViewModels;
 
-public partial class ShopPage : ContentPage
+namespace PhotoFocus.MVVM.Views
 {
-	public ShopPage()
-	{
-		InitializeComponent();
-	}
+    public partial class ShopPage : ContentPage
+    {
+        public ShopPage()
+        {
+            InitializeComponent();
+            BindingContext = new ShopViewModel();
+        }
+    }
 }

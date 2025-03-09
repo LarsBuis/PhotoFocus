@@ -1,12 +1,15 @@
 ﻿using PhotoFocus.MVVM.Models;
+using PhotoFocus.MVVM.Views;
 using PhotoFocus.Services;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace PhotoFocus.MVVM.ViewModels
 {
     public class HomeViewModel : BaseViewModel
     {
-        // The categories displayed in the Picker, including "All Photos"
+        private readonly INavigationService _navigationService;
+
         private ObservableCollection<Category> _filterCategories;
         public ObservableCollection<Category> FilterCategories
         {
@@ -14,7 +17,6 @@ namespace PhotoFocus.MVVM.ViewModels
             set => SetProperty(ref _filterCategories, value);
         }
 
-        // The category chosen in the Picker
         private Category _selectedFilterCategory;
         public Category SelectedFilterCategory
         {
@@ -23,13 +25,11 @@ namespace PhotoFocus.MVVM.ViewModels
             {
                 if (SetProperty(ref _selectedFilterCategory, value))
                 {
-                    // Whenever the user picks a different category, we reload photos
                     LoadFilteredPhotos();
                 }
             }
         }
 
-        // Display title for current filter
         private string _filterTitle;
         public string FilterTitle
         {
@@ -37,7 +37,6 @@ namespace PhotoFocus.MVVM.ViewModels
             set => SetProperty(ref _filterTitle, value);
         }
 
-        // The main collection of photos to display
         private ObservableCollection<PhotoDisplayItem> _filteredPhotos;
         public ObservableCollection<PhotoDisplayItem> FilteredPhotos
         {
@@ -45,38 +44,48 @@ namespace PhotoFocus.MVVM.ViewModels
             set => SetProperty(ref _filteredPhotos, value);
         }
 
-        // Keep all photos in memory so we can quickly filter
         private List<Photo> _allPhotos;
-
-        // Special "All Photos" category
         private Category _allCategory = new Category { Id = -1, Name = "All Photos" };
 
-        public HomeViewModel()
+        // Commands
+        public ICommand FilterCommand { get; }
+        public ICommand AddPhotoCommand { get; }
+
+        public HomeViewModel(INavigationService navigationService)
         {
-            // Initialize
+            _navigationService = navigationService;
+
             _allPhotos = new List<Photo>();
             FilteredPhotos = new ObservableCollection<PhotoDisplayItem>();
             FilterCategories = new ObservableCollection<Category>();
 
+            // Load data (categories + photos)
             LoadData();
+
+            // Filter button command
+            FilterCommand = new Command(async () => await OnFilterClicked());
+
+            // Add Photo command -> calls our NavigationService
+            AddPhotoCommand = new Command(async () =>
+            {
+                await _navigationService.NavigateToUploadPhotoAsync();
+            });
         }
 
         private async void LoadData()
         {
             // Load categories from DB
             var cats = await DatabaseService.Database.Table<Category>().ToListAsync();
-
-            // Insert our "All Photos" pseudo-category at the front
             FilterCategories.Add(_allCategory);
             foreach (var cat in cats)
             {
                 FilterCategories.Add(cat);
             }
 
-            // Load all photos from DB
+            // Load all photos
             _allPhotos = await DatabaseService.Database.Table<Photo>().ToListAsync();
 
-            // Default to "All Photos"
+            // Default filter = All Photos
             SelectedFilterCategory = _allCategory;
         }
 
@@ -84,7 +93,6 @@ namespace PhotoFocus.MVVM.ViewModels
         {
             if (SelectedFilterCategory == null || SelectedFilterCategory.Id == -1)
             {
-                // Show all photos
                 FilterTitle = "All Photos";
                 await SetPhotosAsync(_allPhotos);
             }
@@ -102,10 +110,8 @@ namespace PhotoFocus.MVVM.ViewModels
 
         private async Task SetPhotosAsync(List<Photo> photos)
         {
-            // Clear out the old results
             FilteredPhotos.Clear();
 
-            // For each photo, find the associated user + category
             foreach (var p in photos)
             {
                 var user = await DatabaseService.Database.Table<User>()
@@ -120,6 +126,28 @@ namespace PhotoFocus.MVVM.ViewModels
                     User = user,
                     Category = category
                 });
+            }
+        }
+
+        private async Task OnFilterClicked()
+        {
+            var categoryNames = FilterCategories.Select(c => c.Name).ToArray();
+            var action = await Application.Current.MainPage.DisplayActionSheet(
+                "Choose a category",
+                "Cancel",
+                null,
+                categoryNames
+            );
+
+            if (action == "Cancel" || string.IsNullOrEmpty(action))
+            {
+                return;
+            }
+
+            var chosenCategory = FilterCategories.FirstOrDefault(c => c.Name == action);
+            if (chosenCategory != null)
+            {
+                SelectedFilterCategory = chosenCategory;
             }
         }
     }

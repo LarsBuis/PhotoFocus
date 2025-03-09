@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace PhotoFocus.MVVM.Models
 {
-    public class User
+    public class Membership
     {
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
 
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public int Points { get; set; }
-        public string ProfilePictureUrl { get; set; }
+        public int UserId { get; set; }
 
-        public bool IsAdmin { get; set; } = false;
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+
+        public bool IsActive { get; set; } = false;
     }
 }

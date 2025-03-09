@@ -3,32 +3,28 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:PhotoFocus.MVVM.Views"
-    x:Class="PhotoFocus.MainPage">
+    x:Class="PhotoFocus.MainPage"
+    BarBackgroundColor="#222431"
+    SelectedTabColor="White"
+    UnselectedTabColor="#717796">
 
-    <!-- Each tab is wrapped in a NavigationPage if you want 
-         per-tab navigation stacks. -->
+    <!-- Each tab is wrapped in a NavigationPage if you want per-tab navigation stacks. -->
     <TabbedPage.Children>
-        <NavigationPage Title="Home">
+        <NavigationPage Title="Home" IconImageSource="home.png">
             <x:Arguments>
                 <views:HomePage />
             </x:Arguments>
         </NavigationPage>
 
-        <NavigationPage Title="Shop">
+        <NavigationPage Title="Shop" IconImageSource="shop.png">
             <x:Arguments>
                 <views:ShopPage />
             </x:Arguments>
         </NavigationPage>
 
-        <NavigationPage Title="Profile">
+        <NavigationPage Title="Profile" IconImageSource="profile.png">
             <x:Arguments>
                 <views:ProfilePage />
-            </x:Arguments>
-        </NavigationPage>
-
-        <NavigationPage Title="Upload">
-            <x:Arguments>
-                <views:UploadPhotoPage />
             </x:Arguments>
         </NavigationPage>
     </TabbedPage.Children>

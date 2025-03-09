@@ -3,42 +3,68 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="PhotoFocus.MVVM.Views.HomePage"
-    xmlns:viewmodels="clr-namespace:PhotoFocus.MVVM.ViewModels">
+    xmlns:viewmodels="clr-namespace:PhotoFocus.MVVM.ViewModels"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="#222431">
 
-    <ContentPage.BindingContext>
-        <viewmodels:HomeViewModel />
-    </ContentPage.BindingContext>
+    <!-- Wrap your content in a Grid so we can overlay the floating button -->
+    <Grid>
+        <!-- Main Content -->
+        <VerticalStackLayout Padding="20" Spacing="10">
+            <!-- Filter button -->
+            <Button Text="Filter"
+                    Command="{Binding FilterCommand}"
+                    BackgroundColor="#333"
+                    TextColor="White"
+                    Padding="10"
+                    CornerRadius="15" />
 
-    <VerticalStackLayout Padding="20" Spacing="10">
+            <!-- Title or instructions -->
+            <Label Text="{Binding FilterTitle}"
+                   FontAttributes="Bold"
+                   FontSize="24"
+                   TextColor="White"/>
 
-        <!-- Category Filter -->
-        <Label Text="Filter by Category:" FontAttributes="Bold" />
-        <Picker ItemsSource="{Binding FilterCategories}"
-                ItemDisplayBinding="{Binding Name}"
-                SelectedItem="{Binding SelectedFilterCategory}"
-                Title="All Photos" />
+            <!-- List of Photos -->
+            <CollectionView ItemsSource="{Binding FilteredPhotos}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout Padding="5">
+                            <!-- Display the photo -->
+                            <Image Source="{Binding Photo.FilePath}"
+                                   HeightRequest="150"
+                                   Aspect="AspectFill" />
 
-        <!-- Title or instructions -->
-        <Label Text="{Binding FilterTitle}" FontAttributes="Bold" FontSize="24" />
+                            <!-- Display user name and upload date -->
+                            <Label Text="{Binding User.Username}"
+                                   FontAttributes="Bold"
+                                   TextColor="White"/>
+                            <Label Text="{Binding Photo.UploadedAt, StringFormat='{0:dd MMM yyyy HH:mm}'}"
+                                   FontSize="12"
+                                   TextColor="LightGray"/>
 
-        <!-- List of Photos -->
-        <CollectionView ItemsSource="{Binding FilteredPhotos}">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <StackLayout Padding="5">
-                        <!-- Display the photo -->
-                        <Image Source="{Binding Photo.FilePath}" HeightRequest="150" Aspect="AspectFill" />
+                            <!-- Optional: Show the category name -->
+                            <Label Text="{Binding Category.Name}"
+                                   FontSize="12"
+                                   TextColor="LightGray"/>
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
 
-                        <!-- Display user name and upload date -->
-                        <Label Text="{Binding User.Username}" FontAttributes="Bold" />
-                        <Label Text="{Binding Photo.UploadedAt, StringFormat='{0:dd MMM yyyy HH:mm}'}" FontSize="12" />
+        <!-- Floating Add Button -->
+        <Button Text="+"
+        Command="{Binding AddPhotoCommand}"
+        BackgroundColor="#333"
+        TextColor="White"
+        FontSize="30"
+        WidthRequest="60"
+        HeightRequest="60"
+        CornerRadius="30"
+        HorizontalOptions="End"
+        VerticalOptions="End"
+        Margin="0,0,20,20" />
 
-                        <!-- (Optional) Show the category name below each photo -->
-                        <Label Text="{Binding Category.Name}" FontSize="12" />
-                    </StackLayout>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-
-    </VerticalStackLayout>
+    </Grid>
 </ContentPage>
