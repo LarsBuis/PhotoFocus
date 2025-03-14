@@ -47,18 +47,16 @@ namespace PhotoFocus.MVVM.ViewModels
             bool isValid = await DatabaseService.LoginUser(Username, Password);
             if (isValid)
             {
-                // 1) Fetch the user record from DB
+
                 var user = await DatabaseService.Database.Table<User>()
                     .Where(u => u.Username == Username)
                     .FirstOrDefaultAsync();
 
-                // 2) Store the user’s ID in SecureStorage so we remember them
                 if (user != null)
                 {
                     await SecureStorage.Default.SetAsync("userId", user.Id.ToString());
                 }
 
-                // 3) Navigate to the main page
                 Application.Current.MainPage = new MainPage();
             }
             else
@@ -70,8 +68,15 @@ namespace PhotoFocus.MVVM.ViewModels
 
         private async Task OnGoToRegister()
         {
-            // Navigate to RegisterPage (requires Shell routes or Navigation)
-            await Application.Current.MainPage.Navigation.PushAsync(new RegisterPage());
+            if (Application.Current.MainPage is NavigationPage navigationPage)
+            {
+                await navigationPage.PushAsync(new RegisterPage());
+            }
+            else
+            {
+                Application.Current.MainPage = new NavigationPage(new RegisterPage());
+            }
         }
+
     }
 }

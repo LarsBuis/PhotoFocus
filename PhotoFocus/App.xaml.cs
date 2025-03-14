@@ -1,5 +1,6 @@
 ﻿using Microsoft.Maui.Storage;
 using PhotoFocus.MVVM.Views;
+using PhotoFocus.Services;
 
 namespace PhotoFocus
 {
@@ -9,10 +10,12 @@ namespace PhotoFocus
         {
             InitializeComponent();
 
-            // Synchronous read from SecureStorage
             var userId = SecureStorage.Default.GetAsync("userId")
                                              .GetAwaiter()
                                              .GetResult();
+
+            Task.Run(async () => await DatabaseService.InitializeAsync());
+
 
             if (!string.IsNullOrEmpty(userId))
             {

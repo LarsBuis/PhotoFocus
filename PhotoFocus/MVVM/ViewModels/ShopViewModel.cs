@@ -1,60 +1,63 @@
 ﻿using PhotoFocus.MVVM.Models;
 using PhotoFocus.Services;
+using System.Threading.Tasks;
 using System.Windows.Input;
+using Microsoft.Maui.Storage;
 
 namespace PhotoFocus.MVVM.ViewModels
 {
     public class ShopViewModel : BaseViewModel
     {
-        private User _currentUser;
-        public User CurrentUser
+        private bool _isMember;
+        public bool IsMember
         {
-            get => _currentUser;
-            set => SetProperty(ref _currentUser, value);
+            get => _isMember;
+            set => SetProperty(ref _isMember, value);
         }
 
-        private string _message;
-        public string Message
-        {
-            get => _message;
-            set => SetProperty(ref _message, value);
-        }
+        private int _currentUserId;
 
-        // Command that executes when the user taps "Buy"
-        public ICommand BuyCommand { get; }
+        public ICommand BuyMembershipCommand { get; }
 
         public ShopViewModel()
         {
-            LoadUser();
-
-            // Initialize the BuyCommand
-            BuyCommand = new Command(async () => await OnBuy());
+            BuyMembershipCommand = new Command(async () => await BuyMembershipAsync());
+            InitializeUserIdAsync();
         }
 
-        private async void LoadUser()
+        private async void InitializeUserIdAsync()
         {
-            // For demo, load the first user from DB
-            // In a real app, you'd load the *currently logged-in user*
-            var users = await DatabaseService.Database.Table<User>().ToListAsync();
-            CurrentUser = users.FirstOrDefault();
-        }
-
-        private async Task OnBuy()
-        {
-            if (CurrentUser == null)
+            var storedUserId = await SecureStorage.GetAsync("userId");
+            if (!string.IsNullOrEmpty(storedUserId) && int.TryParse(storedUserId, out int id))
             {
-                Message = "No user loaded.";
+                _currentUserId = id;
+            }
+            await CheckMembershipStatusAsync();
+        }
+
+        private async Task BuyMembershipAsync()
+        {
+            bool active = await DatabaseService.IsMembershipActiveAsync(_currentUserId);
+            if (active)
+            {
+                IsMember = true;
                 return;
             }
 
-            // Increase the user's points by 1 (cost = 1 euro)
-            CurrentUser.Points += 1;
+            bool result = await DatabaseService.AddMembershipAsync(_currentUserId);
+            if (result)
+            {
+                IsMember = true;
+            }
+            else
+            {
+                // have to add error message
+            }
+        }
 
-            // Update the database
-            await DatabaseService.Database.UpdateAsync(CurrentUser);
-
-            // Provide feedback to the UI
-            Message = $"You bought 1 point! You now have {CurrentUser.Points} points.";
+        private async Task CheckMembershipStatusAsync()
+        {
+            IsMember = await DatabaseService.IsMembershipActiveAsync(_currentUserId);
         }
     }
 }

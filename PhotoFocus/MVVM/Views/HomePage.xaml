@@ -2,69 +2,85 @@
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    x:Class="PhotoFocus.MVVM.Views.HomePage"
     xmlns:viewmodels="clr-namespace:PhotoFocus.MVVM.ViewModels"
+    x:Class="PhotoFocus.MVVM.Views.HomePage"
     NavigationPage.HasNavigationBar="False"
     BackgroundColor="#222431">
 
-    <!-- Wrap your content in a Grid so we can overlay the floating button -->
     <Grid>
-        <!-- Main Content -->
-        <VerticalStackLayout Padding="20" Spacing="10">
-            <!-- Filter button -->
-            <Button Text="Filter"
-                    Command="{Binding FilterCommand}"
-                    BackgroundColor="#333"
-                    TextColor="White"
-                    Padding="10"
-                    CornerRadius="15" />
+        <ScrollView VerticalOptions="FillAndExpand">
+            <VerticalStackLayout Padding="20" Spacing="10">
 
-            <!-- Title or instructions -->
-            <Label Text="{Binding FilterTitle}"
-                   FontAttributes="Bold"
-                   FontSize="24"
-                   TextColor="White"/>
+                <Button Text="Filter"
+                        Command="{Binding FilterCommand}"
+                        BackgroundColor="#333"
+                        TextColor="White"
+                        Padding="10"
+                        CornerRadius="15" />
 
-            <!-- List of Photos -->
-            <CollectionView ItemsSource="{Binding FilteredPhotos}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <StackLayout Padding="5">
-                            <!-- Display the photo -->
-                            <Image Source="{Binding Photo.FilePath}"
-                                   HeightRequest="150"
-                                   Aspect="AspectFill" />
+                <Label Text="{Binding FilterTitle}"
+                       FontAttributes="Bold"
+                       FontSize="24"
+                       TextColor="White" />
 
-                            <!-- Display user name and upload date -->
-                            <Label Text="{Binding User.Username}"
-                                   FontAttributes="Bold"
-                                   TextColor="White"/>
-                            <Label Text="{Binding Photo.UploadedAt, StringFormat='{0:dd MMM yyyy HH:mm}'}"
-                                   FontSize="12"
-                                   TextColor="LightGray"/>
+                <VerticalStackLayout
+                    BindableLayout.ItemsSource="{Binding FilteredPhotos}"
+                    Spacing="10">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate>
+                            <VerticalStackLayout Padding="5">
+                                <Image Source="{Binding Photo.FilePath}"
+                                       HeightRequest="150"
+                                       Aspect="AspectFill" />
 
-                            <!-- Optional: Show the category name -->
-                            <Label Text="{Binding Category.Name}"
-                                   FontSize="12"
-                                   TextColor="LightGray"/>
-                        </StackLayout>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </VerticalStackLayout>
+                                <Label Text="{Binding User.Username}"
+                                       FontAttributes="Bold"
+                                       TextColor="White" />
 
-        <!-- Floating Add Button -->
+                                <Label Text="{Binding Photo.UploadedAt, StringFormat='{0:dd MMM yyyy HH:mm}'}"
+                                       FontSize="12"
+                                       TextColor="LightGray" />
+
+                                <Label Text="{Binding Category.Name}"
+                                       FontSize="12"
+                                       TextColor="LightGray" />
+
+                                <Label Text="{Binding LikeCount}"
+                                       TextColor="White"
+                                       FontAttributes="Bold"
+                                       FontSize="14" />
+
+                                <Button Command="{Binding ToggleLikeCommand}"
+                                        BackgroundColor="#333"
+                                        TextColor="White"
+                                        Padding="5"
+                                        CornerRadius="10">
+                                    <Button.Triggers>
+                                        <DataTrigger TargetType="Button" Binding="{Binding HasLiked}" Value="true">
+                                            <Setter Property="Text" Value="Unlike" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Button" Binding="{Binding HasLiked}" Value="false">
+                                            <Setter Property="Text" Value="Like" />
+                                        </DataTrigger>
+                                    </Button.Triggers>
+                                </Button>
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+
         <Button Text="+"
-        Command="{Binding AddPhotoCommand}"
-        BackgroundColor="#333"
-        TextColor="White"
-        FontSize="30"
-        WidthRequest="60"
-        HeightRequest="60"
-        CornerRadius="30"
-        HorizontalOptions="End"
-        VerticalOptions="End"
-        Margin="0,0,20,20" />
-
+                Command="{Binding AddPhotoCommand}"
+                BackgroundColor="#333"
+                TextColor="White"
+                FontSize="30"
+                WidthRequest="60"
+                HeightRequest="60"
+                CornerRadius="30"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                Margin="0,0,20,20" />
     </Grid>
 </ContentPage>

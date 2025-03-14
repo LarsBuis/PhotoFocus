@@ -1,33 +1,57 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:PhotoFocus.Services"
              x:Class="PhotoFocus.MVVM.Views.ShopPage"
              Title="Shop">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <local:BoolToMembershipStatusConverter x:Key="BoolToMembershipStatusConverter" />
+            <local:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
-    <VerticalStackLayout Padding="20" Spacing="25">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="25">
 
-        <!-- Title -->
-        <Label Text="Buy Points"
-               FontSize="24"
-               HorizontalOptions="Center" />
+            <Label Text="Shop"
+             FontSize="24"
+             HorizontalOptions="Center" />
 
-        <!-- Show current points -->
-        <Label Text="{Binding CurrentUser.Points, StringFormat='You currently have {0} points.'}"
-               HorizontalOptions="Center" />
+            <Frame BackgroundColor="Transparent" BorderColor="Gray" Padding="10">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Buy Points"
+                 FontSize="20"
+                 HorizontalOptions="Center" />
+                    <Label Text="{Binding CurrentUser.Points, StringFormat='You currently have {0} points.'}"
+                 HorizontalOptions="Center" />
+                    <Label Text="Each point costs 1 euro."
+                 HorizontalOptions="Center" />
+                    <Button Text="Buy 1 Point" 
+                  Command="{Binding BuyCommand}" />
+                </VerticalStackLayout>
+            </Frame>
 
-        <!-- Show user the cost: 1 euro per point -->
-        <Label Text="Each point costs 1 euro."
-               HorizontalOptions="Center" />
+            <Frame BackgroundColor="Transparent" BorderColor="Gray" Padding="10">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Membership"
+                 FontSize="20"
+                 HorizontalOptions="Center" />
+                    <Label Text="{Binding IsMember, Converter={StaticResource BoolToMembershipStatusConverter}}"
+                 HorizontalOptions="Center" />
+                    <Label Text="Purchase a 30-day membership."
+                 HorizontalOptions="Center" />
+                    <Button Text="Buy Membership" 
+                  Command="{Binding BuyMembershipCommand}"
+                  IsEnabled="{Binding IsMember, Converter={StaticResource InverseBooleanConverter}}" />
+                </VerticalStackLayout>
+            </Frame>
 
-        <!-- Button to buy 1 point -->
-        <Button Text="Buy 1 Point" 
-                Command="{Binding BuyCommand}" />
+            <Label Text="{Binding Message}"
+             FontAttributes="Italic"
+             TextColor="Green"
+             HorizontalOptions="Center" />
 
-        <!-- Show success or error messages -->
-        <Label Text="{Binding Message}"
-               FontAttributes="Italic"
-               TextColor="Green"
-               HorizontalOptions="Center" />
-
-    </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

@@ -1,36 +1,36 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ContentPage 
-    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    x:Class="PhotoFocus.MVVM.Views.UploadPhotoPage"
-    xmlns:viewmodels="clr-namespace:PhotoFocus.MVVM.ViewModels">
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:PhotoFocus.MVVM.ViewModels"
+             x:Class="PhotoFocus.MVVM.Views.UploadPhotoPage">
 
     <ContentPage.BindingContext>
-        <viewmodels:UploadPhotoViewModel />
+        <viewModels:UploadPhotoViewModel />
     </ContentPage.BindingContext>
 
-    <VerticalStackLayout Padding="20" Spacing="10">
+    <VerticalStackLayout Padding="20">
 
-        <!-- Display selected image preview (if any) -->
-        <Image Source="{Binding SelectedImagePath}" 
-               HeightRequest="200"
-               Aspect="AspectFill" />
-
-        <!-- Button to pick or capture a photo -->
-        <Button Text="Pick Photo" Command="{Binding PickPhotoCommand}" />
-        <Button Text="Take Photo" Command="{Binding TakePhotoCommand}" />
-
-        <!-- Category Picker -->
-        <Label Text="Select Category" />
         <Picker ItemsSource="{Binding Categories}"
                 ItemDisplayBinding="{Binding Name}"
                 SelectedItem="{Binding SelectedCategory}"
-                Title="Choose category" />
+                Title="Select Category" />
 
-        <!-- Upload button -->
-        <Button Text="Upload Photo" Command="{Binding UploadCommand}" />
+        <Button Text="Pick Photo"
+                Command="{Binding PickPhotoCommand}" />
+        <Button Text="Take Photo"
+                Command="{Binding TakePhotoCommand}" />
+
+        <Button Text="Generate Image from Pexels"
+        Command="{Binding GeneratePexelsImageCommand}"
+        IsVisible="{Binding IsGenerateImageVisible}" />
+
+
+        <Button Text="Upload"
+                Command="{Binding UploadCommand}" />
+
+        <Image Source="{Binding SelectedImagePath}" 
+               Aspect="AspectFill" 
+               HeightRequest="200" />
 
         <Label Text="{Binding Message}" TextColor="Red" />
-
     </VerticalStackLayout>
 </ContentPage>

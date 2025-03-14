@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using PhotoFocus.MVVM.Models;
 using SQLite;
+using Microsoft.Maui.Storage;
 
 namespace PhotoFocus.Services
 {
@@ -18,8 +19,7 @@ namespace PhotoFocus.Services
             {
                 if (_database == null)
                 {
-                    // Path to local database
-                    var dbPath = Path.Combine(FileSystem.AppDataDirectory, "PhotoFocusDB2.db3");
+                    var dbPath = Path.Combine(FileSystem.AppDataDirectory, "PhotoFocusDB3.db3");
                     _database = new SQLiteAsyncConnection(dbPath);
                 }
                 return _database;
@@ -31,6 +31,8 @@ namespace PhotoFocus.Services
             await Database.CreateTableAsync<User>();
             await Database.CreateTableAsync<Category>();
             await Database.CreateTableAsync<Photo>();
+            await Database.CreateTableAsync<PhotoLike>();
+            await Database.CreateTableAsync<Membership>();
 
             await SeedCategoriesAsync();
         }
@@ -40,15 +42,14 @@ namespace PhotoFocus.Services
             var categories = await Database.Table<Category>().ToListAsync();
             if (!categories.Any())
             {
-                // Insert default categories
                 await Database.InsertAllAsync(new List<Category>
-        {
-            new Category { Name = "Black and White" },
-            new Category { Name = "Night" },
-            new Category { Name = "Underwater" },
-            new Category { Name = "Nature" },
-            new Category { Name = "Portrait" }
-        });
+                {
+                    new Category { Name = "Black and White" },
+                    new Category { Name = "Night" },
+                    new Category { Name = "Underwater" },
+                    new Category { Name = "Nature" },
+                    new Category { Name = "Portrait" }
+                });
             }
         }
 
@@ -66,17 +67,46 @@ namespace PhotoFocus.Services
             return result > 0;
         }
 
+        public static async Task<bool> ToggleLikeAsync(int photoId, int userId)
+        {
+            var existingLike = await Database.Table<PhotoLike>()
+                .Where(l => l.PhotoId == photoId && l.UserId == userId)
+                .FirstOrDefaultAsync();
+
+            if (existingLike == null)
+            {
+                var newLike = new PhotoLike
+                {
+                    PhotoId = photoId,
+                    UserId = userId,
+                    LikedAt = DateTime.UtcNow
+                };
+                await Database.InsertAsync(newLike);
+                return true;
+            }
+            else
+            {
+                await Database.DeleteAsync(existingLike);
+                return false;
+            }
+        }
+
+        public static async Task<int> GetLikeCountAsync(int photoId)
+        {
+            int likeCount = await Database.Table<PhotoLike>()
+                .Where(l => l.PhotoId == photoId)
+                .CountAsync();
+            return likeCount;
+        }
 
         public static async Task<bool> RegisterUser(string username, string password)
         {
-            // Check if the username already exists
             var existingUser = await Database.Table<User>()
                                              .Where(u => u.Username == username)
                                              .FirstOrDefaultAsync();
 
             if (existingUser != null)
             {
-                // Username already taken
                 return false;
             }
 
@@ -90,7 +120,6 @@ namespace PhotoFocus.Services
             int result = await Database.InsertAsync(newUser);
             return result > 0;
         }
-
 
         public static async Task<bool> LoginUser(string username, string password)
         {
@@ -106,9 +135,27 @@ namespace PhotoFocus.Services
             var user = await Database.Table<User>()
                 .Where(u => u.Username == username && u.Password == password)
                 .FirstOrDefaultAsync();
-
-            // If user is found and password matches, return it; else null
             return user;
+        }
+
+        public static async Task<bool> AddMembershipAsync(int userId)
+        {
+            var membership = new Membership
+            {
+                UserId = userId,
+                StartDate = DateTime.UtcNow,
+                EndDate = DateTime.UtcNow.AddDays(30)
+            };
+            int result = await Database.InsertAsync(membership);
+            return result > 0;
+        }
+
+        public static async Task<bool> IsMembershipActiveAsync(int userId)
+        {
+            var membership = await Database.Table<Membership>()
+                .Where(m => m.UserId == userId && m.EndDate > DateTime.UtcNow)
+                .FirstOrDefaultAsync();
+            return membership != null;
         }
     }
 }

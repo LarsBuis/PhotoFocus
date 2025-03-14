@@ -2,6 +2,8 @@
 using PhotoFocus.MVVM.Views;
 using PhotoFocus.Services;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace PhotoFocus.MVVM.ViewModels
@@ -59,13 +61,9 @@ namespace PhotoFocus.MVVM.ViewModels
             FilteredPhotos = new ObservableCollection<PhotoDisplayItem>();
             FilterCategories = new ObservableCollection<Category>();
 
-            // Load data (categories + photos)
             LoadData();
 
-            // Filter button command
             FilterCommand = new Command(async () => await OnFilterClicked());
-
-            // Add Photo command -> calls our NavigationService
             AddPhotoCommand = new Command(async () =>
             {
                 await _navigationService.NavigateToUploadPhotoAsync();
@@ -74,7 +72,6 @@ namespace PhotoFocus.MVVM.ViewModels
 
         private async void LoadData()
         {
-            // Load categories from DB
             var cats = await DatabaseService.Database.Table<Category>().ToListAsync();
             FilterCategories.Add(_allCategory);
             foreach (var cat in cats)
@@ -82,10 +79,8 @@ namespace PhotoFocus.MVVM.ViewModels
                 FilterCategories.Add(cat);
             }
 
-            // Load all photos
             _allPhotos = await DatabaseService.Database.Table<Photo>().ToListAsync();
 
-            // Default filter = All Photos
             SelectedFilterCategory = _allCategory;
         }
 
@@ -99,11 +94,9 @@ namespace PhotoFocus.MVVM.ViewModels
             else
             {
                 FilterTitle = SelectedFilterCategory.Name;
-
                 var filtered = _allPhotos
                     .Where(p => p.CategoryId == SelectedFilterCategory.Id)
                     .ToList();
-
                 await SetPhotosAsync(filtered);
             }
         }
@@ -111,7 +104,6 @@ namespace PhotoFocus.MVVM.ViewModels
         private async Task SetPhotosAsync(List<Photo> photos)
         {
             FilteredPhotos.Clear();
-
             foreach (var p in photos)
             {
                 var user = await DatabaseService.Database.Table<User>()
@@ -120,12 +112,15 @@ namespace PhotoFocus.MVVM.ViewModels
 
                 var category = FilterCategories.FirstOrDefault(c => c.Id == p.CategoryId);
 
-                FilteredPhotos.Add(new PhotoDisplayItem
+                var item = new PhotoDisplayItem
                 {
                     Photo = p,
                     User = user,
                     Category = category
-                });
+                };
+
+                await item.InitializeAsync();
+                FilteredPhotos.Add(item);
             }
         }
 
@@ -140,9 +135,7 @@ namespace PhotoFocus.MVVM.ViewModels
             );
 
             if (action == "Cancel" || string.IsNullOrEmpty(action))
-            {
                 return;
-            }
 
             var chosenCategory = FilterCategories.FirstOrDefault(c => c.Name == action);
             if (chosenCategory != null)
@@ -152,10 +145,70 @@ namespace PhotoFocus.MVVM.ViewModels
         }
     }
 
-    public class PhotoDisplayItem
+    public class PhotoDisplayItem : BaseViewModel
     {
+        private int _likeCount;
+        public int LikeCount
+        {
+            get => _likeCount;
+            set => SetProperty(ref _likeCount, value);
+        }
+
+        private bool _hasLiked;
+        public bool HasLiked
+        {
+            get => _hasLiked;
+            set => SetProperty(ref _hasLiked, value);
+        }
+
         public Photo Photo { get; set; }
         public User User { get; set; }
         public Category Category { get; set; }
+
+        public ICommand ToggleLikeCommand { get; }
+
+        public PhotoDisplayItem()
+        {
+            ToggleLikeCommand = new Command(async () => await OnToggleLikeAsync());
+        }
+
+        public async Task InitializeAsync()
+        {
+            if (Photo == null)
+                return;
+
+            int currentUserId = await GetCurrentUserIdAsync();
+
+            LikeCount = await DatabaseService.GetLikeCountAsync(Photo.Id);
+
+            // check if liked
+            var existingLike = await DatabaseService.Database.Table<PhotoLike>()
+                .Where(l => l.PhotoId == Photo.Id && l.UserId == currentUserId)
+                .FirstOrDefaultAsync();
+
+            HasLiked = (existingLike != null);
+        }
+
+        private async Task OnToggleLikeAsync()
+        {
+            if (Photo == null)
+                return;
+
+            int currentUserId = await GetCurrentUserIdAsync();
+
+            bool isNowLiked = await DatabaseService.ToggleLikeAsync(Photo.Id, currentUserId);
+
+            LikeCount = await DatabaseService.GetLikeCountAsync(Photo.Id);
+            HasLiked = isNowLiked;
+        }
+
+        private async Task<int> GetCurrentUserIdAsync()
+        {
+            var storedUserId = await SecureStorage.GetAsync("userId");
+            if (!string.IsNullOrEmpty(storedUserId) && int.TryParse(storedUserId, out int id))
+                return id;
+            else
+                return 0;
+        }
     }
 }

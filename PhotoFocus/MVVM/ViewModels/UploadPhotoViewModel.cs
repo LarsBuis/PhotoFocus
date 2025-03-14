@@ -1,12 +1,23 @@
 ﻿using PhotoFocus.MVVM.Models;
 using PhotoFocus.Services;
+using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Text.Json;
+using System.Threading.Tasks;
 using System.Windows.Input;
+using Microsoft.Maui.Storage;
+using Microsoft.Maui.Media;
 
 namespace PhotoFocus.MVVM.ViewModels
 {
     public class UploadPhotoViewModel : BaseViewModel
     {
+        private static readonly HttpClient _httpClient = new HttpClient();
+
         private ObservableCollection<Category> _categories;
         public ObservableCollection<Category> Categories
         {
@@ -18,7 +29,20 @@ namespace PhotoFocus.MVVM.ViewModels
         public Category SelectedCategory
         {
             get => _selectedCategory;
-            set => SetProperty(ref _selectedCategory, value);
+            set
+            {
+                if (SetProperty(ref _selectedCategory, value))
+                {
+                    IsGenerateImageVisible = (_selectedCategory != null);
+                }
+            }
+        }
+
+        private bool _isGenerateImageVisible;
+        public bool IsGenerateImageVisible
+        {
+            get => _isGenerateImageVisible;
+            set => SetProperty(ref _isGenerateImageVisible, value);
         }
 
         private string _selectedImagePath;
@@ -35,18 +59,21 @@ namespace PhotoFocus.MVVM.ViewModels
             set => SetProperty(ref _message, value);
         }
 
+        // Commands
         public ICommand PickPhotoCommand { get; }
         public ICommand TakePhotoCommand { get; }
         public ICommand UploadCommand { get; }
+        public ICommand GeneratePexelsImageCommand { get; }
 
-        // For demo, let's store a "logged-in" user ID here
-        private int _currentUserId = 1; // In a real app, you'd get this from your login system
+        // have to use secure storage for this
+        private int _currentUserId = 1;
 
         public UploadPhotoViewModel()
         {
             PickPhotoCommand = new Command(async () => await PickPhotoAsync());
             TakePhotoCommand = new Command(async () => await TakePhotoAsync());
             UploadCommand = new Command(async () => await UploadAsync());
+            GeneratePexelsImageCommand = new Command(async () => await GeneratePexelsImageAsync());
 
             LoadCategories();
         }
@@ -56,9 +83,88 @@ namespace PhotoFocus.MVVM.ViewModels
             var cats = await DatabaseService.Database.Table<Category>().ToListAsync();
             Categories = new ObservableCollection<Category>(cats);
 
-            // Optional: auto-select first category
             if (Categories.Count > 0)
                 SelectedCategory = Categories[0];
+        }
+
+        private async Task GeneratePexelsImageAsync()
+        {
+            try
+            {
+                if (SelectedCategory == null)
+                {
+                    Message = "Please select a category first.";
+                    return;
+                }
+
+                var random = new Random();
+                int randomPage = random.Next(1, 25);
+
+                string queryTerm = Uri.EscapeDataString(SelectedCategory.Name);
+                string requestUrl = $"https://api.pexels.com/v1/search?query={queryTerm}&per_page=1&page={randomPage}";
+
+                var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+
+                request.Headers.Add("Authorization", "d4u7gyfx95QgvrUXJPAlqwZWJ44XSnULe9StNrDF8yAU1HrcphZNGrWK");
+
+                var response = await _httpClient.SendAsync(request);
+                if (!response.IsSuccessStatusCode)
+                {
+                    Message = $"Pexels request failed: {response.StatusCode}";
+                    return;
+                }
+
+                var json = await response.Content.ReadAsStringAsync();
+                Debug.WriteLine("Pexels JSON response: " + json);
+
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+
+                if (!root.TryGetProperty("photos", out JsonElement photos))
+                {
+                    Message = "Unexpected JSON format: no 'photos' property.";
+                    return;
+                }
+
+                if (photos.GetArrayLength() == 0)
+                {
+                    Message = $"No images found on Pexels for {SelectedCategory.Name}.";
+                    return;
+                }
+
+                var firstPhoto = photos[0];
+                if (!firstPhoto.TryGetProperty("src", out JsonElement src))
+                {
+                    Message = "Unexpected JSON format: no 'src' property in photo.";
+                    return;
+                }
+
+                string originalUrl = src.GetProperty("original").GetString();
+
+                var localPath = await DownloadImageToLocalPath(originalUrl);
+                SelectedImagePath = localPath;
+
+                Message = $"{SelectedCategory.Name} image fetched from Pexels!";
+            }
+            catch (Exception ex)
+            {
+                Message = $"Error generating image: {ex.Message}";
+            }
+        }
+
+        private async Task<string> DownloadImageToLocalPath(string url)
+        {
+            var response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var fileName = $"{Guid.NewGuid()}.jpg";
+            var localPath = Path.Combine(FileSystem.AppDataDirectory, fileName);
+
+            await using var ms = await response.Content.ReadAsStreamAsync();
+            await using var fs = File.OpenWrite(localPath);
+            await ms.CopyToAsync(fs);
+
+            return localPath;
         }
 
         private async Task PickPhotoAsync()
@@ -73,8 +179,7 @@ namespace PhotoFocus.MVVM.ViewModels
 
                 if (result != null)
                 {
-                    // Copy it to local app folder
-                    string localPath = await CopyFileToLocalPath(result);
+                    var localPath = await CopyFileToLocalPath(result);
                     SelectedImagePath = localPath;
                 }
             }
@@ -91,7 +196,7 @@ namespace PhotoFocus.MVVM.ViewModels
                 var photo = await MediaPicker.Default.CapturePhotoAsync();
                 if (photo != null)
                 {
-                    string localPath = await CopyFileToLocalPath(photo);
+                    var localPath = await CopyFileToLocalPath(photo);
                     SelectedImagePath = localPath;
                 }
             }
@@ -103,7 +208,6 @@ namespace PhotoFocus.MVVM.ViewModels
 
         private async Task<string> CopyFileToLocalPath(FileResult file)
         {
-            // Make a unique filename
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
             var localPath = Path.Combine(FileSystem.AppDataDirectory, fileName);
 
@@ -116,7 +220,6 @@ namespace PhotoFocus.MVVM.ViewModels
 
         private async Task UploadAsync()
         {
-            // Validate
             if (string.IsNullOrEmpty(SelectedImagePath))
             {
                 Message = "Please pick or take a photo first.";
@@ -128,12 +231,10 @@ namespace PhotoFocus.MVVM.ViewModels
                 return;
             }
 
-            // Add the photo to DB
             bool success = await DatabaseService.AddPhoto(_currentUserId, SelectedCategory.Id, SelectedImagePath);
             if (success)
             {
                 Message = "Photo uploaded successfully!";
-                // Optionally clear the selection or navigate away
                 SelectedImagePath = null;
             }
             else

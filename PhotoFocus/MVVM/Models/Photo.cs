@@ -8,11 +8,9 @@ namespace PhotoFocus.MVVM.Models
         public int Id { get; set; }
 
         public string FilePath { get; set; }
-
         public int UserId { get; set; }
-
         public int CategoryId { get; set; }
-
         public DateTime UploadedAt { get; set; }
+        public int Likes { get; set; }
     }
 }

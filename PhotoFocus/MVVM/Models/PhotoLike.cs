@@ -2,13 +2,14 @@
 
 namespace PhotoFocus.MVVM.Models
 {
-    public class Membership
+    public class PhotoLike
     {
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
 
+        public int PhotoId { get; set; }
+
         public int UserId { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime LikedAt { get; set; }
     }
 }
