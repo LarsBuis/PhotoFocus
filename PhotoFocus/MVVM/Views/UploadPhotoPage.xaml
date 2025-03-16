@@ -13,6 +13,10 @@
                 ItemDisplayBinding="{Binding Name}"
                 SelectedItem="{Binding SelectedCategory}"
                 Title="Select Category" />
+        
+        <Picker Title="Select Assignment" ItemsSource="{Binding Assignments}"
+        ItemDisplayBinding="{Binding Title}"
+        SelectedItem="{Binding SelectedAssignment}" />
 
         <Button Text="Pick Photo"
                 Command="{Binding PickPhotoCommand}" />

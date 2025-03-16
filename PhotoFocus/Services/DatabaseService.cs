@@ -33,6 +33,7 @@ namespace PhotoFocus.Services
             await Database.CreateTableAsync<Photo>();
             await Database.CreateTableAsync<PhotoLike>();
             await Database.CreateTableAsync<Membership>();
+            await Database.CreateTableAsync<Assignment>();
 
             await SeedCategoriesAsync();
         }
@@ -53,19 +54,21 @@ namespace PhotoFocus.Services
             }
         }
 
-        public static async Task<bool> AddPhoto(int userId, int categoryId, string filePath)
+        public static async Task<bool> AddPhoto(int userId, int categoryId, string filePath, int? assignmentId = null)
         {
             var photo = new Photo
             {
-                FilePath = filePath,
                 UserId = userId,
                 CategoryId = categoryId,
-                UploadedAt = DateTime.Now
+                FilePath = filePath,
+                UploadedAt = DateTime.Now,
+                AssignmentId = assignmentId
             };
 
             int result = await Database.InsertAsync(photo);
             return result > 0;
         }
+
 
         public static async Task<bool> ToggleLikeAsync(int photoId, int userId)
         {

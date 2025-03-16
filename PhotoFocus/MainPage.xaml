@@ -16,6 +16,12 @@
             </x:Arguments>
         </NavigationPage>
 
+        <NavigationPage Title="Assignments" IconImageSource="ass.png">
+            <x:Arguments>
+                <views:AssignmentPage />
+            </x:Arguments>
+        </NavigationPage>
+
         <NavigationPage Title="Shop" IconImageSource="shop.png">
             <x:Arguments>
                 <views:ShopPage />

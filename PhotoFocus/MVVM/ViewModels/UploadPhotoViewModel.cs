@@ -59,13 +59,28 @@ namespace PhotoFocus.MVVM.ViewModels
             set => SetProperty(ref _message, value);
         }
 
+        // New properties for assignments
+        private ObservableCollection<Assignment> _assignments;
+        public ObservableCollection<Assignment> Assignments
+        {
+            get => _assignments;
+            set => SetProperty(ref _assignments, value);
+        }
+
+        private Assignment _selectedAssignment;
+        public Assignment SelectedAssignment
+        {
+            get => _selectedAssignment;
+            set => SetProperty(ref _selectedAssignment, value);
+        }
+
         // Commands
         public ICommand PickPhotoCommand { get; }
         public ICommand TakePhotoCommand { get; }
         public ICommand UploadCommand { get; }
         public ICommand GeneratePexelsImageCommand { get; }
 
-        // have to use secure storage for this
+        // For demo purposes, a static user id
         private int _currentUserId = 1;
 
         public UploadPhotoViewModel()
@@ -76,6 +91,7 @@ namespace PhotoFocus.MVVM.ViewModels
             GeneratePexelsImageCommand = new Command(async () => await GeneratePexelsImageAsync());
 
             LoadCategories();
+            LoadAssignments();
         }
 
         private async void LoadCategories()
@@ -85,6 +101,15 @@ namespace PhotoFocus.MVVM.ViewModels
 
             if (Categories.Count > 0)
                 SelectedCategory = Categories[0];
+        }
+
+        private async void LoadAssignments()
+        {
+            var assigns = await DatabaseService.Database.Table<Assignment>().ToListAsync();
+            Assignments = new ObservableCollection<Assignment>(assigns);
+
+            if (Assignments.Count > 0)
+                SelectedAssignment = Assignments[0];
         }
 
         private async Task GeneratePexelsImageAsync()
@@ -104,7 +129,6 @@ namespace PhotoFocus.MVVM.ViewModels
                 string requestUrl = $"https://api.pexels.com/v1/search?query={queryTerm}&per_page=1&page={randomPage}";
 
                 var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
-
                 request.Headers.Add("Authorization", "d4u7gyfx95QgvrUXJPAlqwZWJ44XSnULe9StNrDF8yAU1HrcphZNGrWK");
 
                 var response = await _httpClient.SendAsync(request);
@@ -140,7 +164,6 @@ namespace PhotoFocus.MVVM.ViewModels
                 }
 
                 string originalUrl = src.GetProperty("original").GetString();
-
                 var localPath = await DownloadImageToLocalPath(originalUrl);
                 SelectedImagePath = localPath;
 
@@ -231,7 +254,8 @@ namespace PhotoFocus.MVVM.ViewModels
                 return;
             }
 
-            bool success = await DatabaseService.AddPhoto(_currentUserId, SelectedCategory.Id, SelectedImagePath);
+            // Pass the selected assignment's ID (or null if none) to the AddPhoto method.
+            bool success = await DatabaseService.AddPhoto(_currentUserId, SelectedCategory.Id, SelectedImagePath, SelectedAssignment?.Id);
             if (success)
             {
                 Message = "Photo uploaded successfully!";
