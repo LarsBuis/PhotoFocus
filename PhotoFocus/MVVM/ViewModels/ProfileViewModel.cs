@@ -35,9 +35,15 @@ namespace PhotoFocus.MVVM.ViewModels
 
         private async void LoadUser()
         {
-            // Load a user from DB (for demo, just fetch the first user found)
-            var users = await DatabaseService.Database.Table<User>().ToListAsync();
-            CurrentUser = users.FirstOrDefault();
+            // Retrieve the user id from SecureStorage using the key "userId"
+            var storedUserId = await SecureStorage.GetAsync("userId");
+            if (!string.IsNullOrEmpty(storedUserId) && int.TryParse(storedUserId, out int userId))
+            {
+                // Load the user from the database by userId
+                CurrentUser = await DatabaseService.Database.Table<User>()
+                    .Where(u => u.Id == userId)
+                    .FirstOrDefaultAsync();
+            }
         }
 
         // 3) NEW: OnLogout removes the stored userId and navigates to LoginPage

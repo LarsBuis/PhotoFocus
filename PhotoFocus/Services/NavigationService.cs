@@ -6,7 +6,6 @@ namespace PhotoFocus.Services
     {
         private readonly INavigation _navigation;
 
-        // Pass in an INavigation from the Page's Navigation property
         public NavigationService(INavigation navigation)
         {
             _navigation = navigation;
@@ -14,7 +13,6 @@ namespace PhotoFocus.Services
 
         public Task NavigateToUploadPhotoAsync()
         {
-            // Push the UploadPhotoPage on the current navigation stack
             return _navigation.PushAsync(new UploadPhotoPage());
         }
     }
