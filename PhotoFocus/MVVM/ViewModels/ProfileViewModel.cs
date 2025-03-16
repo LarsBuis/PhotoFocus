@@ -2,7 +2,9 @@
 using PhotoFocus.MVVM.Models;
 using PhotoFocus.MVVM.Views;
 using PhotoFocus.Services;
+using System.Threading.Tasks;
 using System.Windows.Input;
+using SQLite;
 
 namespace PhotoFocus.MVVM.ViewModels
 {
@@ -16,9 +18,8 @@ namespace PhotoFocus.MVVM.ViewModels
         }
 
         public ICommand ChangeProfilePictureCommand { get; }
-
-        // 1) NEW: Add a LogoutCommand property
         public ICommand LogoutCommand { get; }
+        public ICommand SettingsCommand { get; } // New command for settings
 
         public ProfileViewModel()
         {
@@ -26,11 +27,14 @@ namespace PhotoFocus.MVVM.ViewModels
             // In a real app, you'd identify the actual logged-in user
             LoadUser();
 
-            // Existing command to change profile pic
+            // Existing command to change profile picture
             ChangeProfilePictureCommand = new Command(async () => await OnChangeProfilePicture());
 
-            // 2) NEW: Initialize the LogoutCommand
+            // Logout command
             LogoutCommand = new Command(OnLogout);
+
+            // New: Initialize the SettingsCommand
+            SettingsCommand = new Command(async () => await OnSettings());
         }
 
         private async void LoadUser()
@@ -46,11 +50,18 @@ namespace PhotoFocus.MVVM.ViewModels
             }
         }
 
-        // 3) NEW: OnLogout removes the stored userId and navigates to LoginPage
+        // Logout: Remove stored userId and navigate to LoginPage
         private void OnLogout()
         {
             SecureStorage.Default.Remove("userId");
             Application.Current.MainPage = new LoginPage();
+        }
+
+        // New: Navigate to SettingsPage
+        private async Task OnSettings()
+        {
+            // Ensure you have a SettingsPage in your project
+            await Application.Current.MainPage.Navigation.PushAsync(new SettingsPage());
         }
 
         private async Task OnChangeProfilePicture()
@@ -91,7 +102,7 @@ namespace PhotoFocus.MVVM.ViewModels
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                System.Diagnostics.Debug.WriteLine(ex);
             }
         }
 
@@ -109,18 +120,17 @@ namespace PhotoFocus.MVVM.ViewModels
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                System.Diagnostics.Debug.WriteLine(ex);
             }
         }
 
         private async Task<string> CopyFileToLocalPath(FileResult file)
         {
-            // Create a unique filename in the local folder
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-            var localPath = Path.Combine(FileSystem.AppDataDirectory, fileName);
+            var localPath = System.IO.Path.Combine(FileSystem.AppDataDirectory, fileName);
 
             using (var stream = await file.OpenReadAsync())
-            using (var newStream = File.OpenWrite(localPath))
+            using (var newStream = System.IO.File.OpenWrite(localPath))
             {
                 await stream.CopyToAsync(newStream);
             }
@@ -130,7 +140,6 @@ namespace PhotoFocus.MVVM.ViewModels
 
         private async Task UpdateUserInDatabase()
         {
-            // Update the user in the SQLite DB
             await DatabaseService.Database.UpdateAsync(CurrentUser);
         }
     }

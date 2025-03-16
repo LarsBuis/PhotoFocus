@@ -1,9 +1,24 @@
-namespace PhotoFocus.MVVM.Views;
+using Microsoft.Maui.Graphics;
 
-public partial class UploadPhotoPage : ContentPage
+namespace PhotoFocus.MVVM.Views
 {
-	public UploadPhotoPage()
-	{
-		InitializeComponent();
-	}
+    public partial class UploadPhotoPage : ContentPage
+    {
+        public UploadPhotoPage()
+        {
+            InitializeComponent();
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+
+            // If this page is wrapped in a NavigationPage, set the bar colors
+            if (Application.Current.MainPage is NavigationPage navPage)
+            {
+                navPage.BarBackgroundColor = Color.FromArgb("#222431");
+                navPage.BarTextColor = Colors.White;
+            }
+        }
+    }
 }

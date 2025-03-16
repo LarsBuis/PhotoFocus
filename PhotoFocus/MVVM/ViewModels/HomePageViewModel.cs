@@ -119,6 +119,14 @@ namespace PhotoFocus.MVVM.ViewModels
                     Category = category
                 };
 
+                // If the photo has an assignment, load it from the database
+                if (p.AssignmentId.HasValue)
+                {
+                    item.Assignment = await DatabaseService.Database.Table<Assignment>()
+                        .Where(a => a.Id == p.AssignmentId.Value)
+                        .FirstOrDefaultAsync();
+                }
+
                 await item.InitializeAsync();
                 FilteredPhotos.Add(item);
             }
@@ -164,6 +172,8 @@ namespace PhotoFocus.MVVM.ViewModels
         public Photo Photo { get; set; }
         public User User { get; set; }
         public Category Category { get; set; }
+        // New property to hold the assignment (if any)
+        public Assignment Assignment { get; set; }
 
         public ICommand ToggleLikeCommand { get; }
 
@@ -181,7 +191,7 @@ namespace PhotoFocus.MVVM.ViewModels
 
             LikeCount = await DatabaseService.GetLikeCountAsync(Photo.Id);
 
-            // check if liked
+            // Check if the current user has liked this photo
             var existingLike = await DatabaseService.Database.Table<PhotoLike>()
                 .Where(l => l.PhotoId == Photo.Id && l.UserId == currentUserId)
                 .FirstOrDefaultAsync();

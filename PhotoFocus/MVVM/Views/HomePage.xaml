@@ -29,9 +29,20 @@
                     <BindableLayout.ItemTemplate>
                         <DataTemplate>
                             <VerticalStackLayout Padding="5">
-                                <Image Source="{Binding Photo.FilePath}"
-                                       HeightRequest="150"
-                                       Aspect="AspectFill" />
+                                <!-- Image wrapped in a Frame for rounded corners -->
+                                <Frame Padding="0"
+                                    HasShadow="False"
+                                    CornerRadius="15"
+                                    IsClippedToBounds="True"
+                                    BackgroundColor="Transparent"
+                                    BorderColor="Transparent"
+                                    HeightRequest="200">
+                                    <Image Source="{Binding Photo.FilePath}"
+                                        Aspect="AspectFill"
+                                        VerticalOptions="Fill"
+                                        HorizontalOptions="Fill" />
+                                </Frame>
+
 
                                 <Label Text="{Binding User.Username}"
                                        FontAttributes="Bold"
@@ -42,6 +53,10 @@
                                        TextColor="LightGray" />
 
                                 <Label Text="{Binding Category.Name}"
+                                       FontSize="12"
+                                       TextColor="LightGray" />
+
+                                <Label Text="{Binding Assignment.Title}"
                                        FontSize="12"
                                        TextColor="LightGray" />
 
@@ -70,17 +85,5 @@
                 </VerticalStackLayout>
             </VerticalStackLayout>
         </ScrollView>
-
-        <Button Text="+"
-                Command="{Binding AddPhotoCommand}"
-                BackgroundColor="#333"
-                TextColor="White"
-                FontSize="30"
-                WidthRequest="60"
-                HeightRequest="60"
-                CornerRadius="30"
-                HorizontalOptions="End"
-                VerticalOptions="End"
-                Margin="0,0,20,20" />
     </Grid>
 </ContentPage>

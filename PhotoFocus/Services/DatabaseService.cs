@@ -36,6 +36,7 @@ namespace PhotoFocus.Services
             await Database.CreateTableAsync<Assignment>();
 
             await SeedCategoriesAsync();
+            await SeedAdminUserAsync();
         }
 
         private static async Task SeedCategoriesAsync()
@@ -54,6 +55,26 @@ namespace PhotoFocus.Services
             }
         }
 
+        private static async Task SeedAdminUserAsync()
+        {
+            var adminUser = await Database.Table<User>()
+                                          .Where(u => u.IsAdmin == true)
+                                          .FirstOrDefaultAsync();
+            if (adminUser == null)
+            {
+                adminUser = new User
+                {
+                    Username = "1",
+                    Password = "1",
+                    Points = 100,
+                    IsAdmin = true,
+                    ProfilePictureUrl = ""
+                };
+
+                await Database.InsertAsync(adminUser);
+            }
+        }
+
         public static async Task<bool> AddPhoto(int userId, int categoryId, string filePath, int? assignmentId = null)
         {
             var photo = new Photo
@@ -68,7 +89,6 @@ namespace PhotoFocus.Services
             int result = await Database.InsertAsync(photo);
             return result > 0;
         }
-
 
         public static async Task<bool> ToggleLikeAsync(int photoId, int userId)
         {

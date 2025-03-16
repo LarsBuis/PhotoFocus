@@ -8,20 +8,26 @@ namespace PhotoFocus.MVVM.Models
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
 
-        // A short title for the assignment
         public string Title { get; set; }
-
-        // Detailed description if needed
         public string Description { get; set; }
-
-        // When the assignment is created or starts
         public DateTime StartDate { get; set; }
-
-        // Duration in days (for example, 7 or 14)
         public int DurationDays { get; set; }
 
-        // Optional: calculated end date (not stored in DB)
+        // Compute the end date based on StartDate and DurationDays
         [Ignore]
         public DateTime EndDate => StartDate.AddDays(DurationDays);
+
+        // Computed property that calculates the time remaining
+        [Ignore]
+        public string TimeRemaining
+        {
+            get
+            {
+                var remaining = EndDate - DateTime.Now;
+                if (remaining.TotalSeconds <= 0)
+                    return "Expired";
+                return $"{remaining.Days} days remaining";
+            }
+        }
     }
 }

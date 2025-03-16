@@ -1,37 +1,86 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="PhotoFocus.MVVM.Views.ProfilePage"
-             Title="Profile">
+<ContentPage 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="PhotoFocus.MVVM.Views.ProfilePage"
+    Title="Profile"
+    BackgroundColor="#222431"
+    NavigationPage.HasNavigationBar="False">
 
-    <VerticalStackLayout Padding="20" Spacing="25">
+    <Grid Padding="30">
+        <!-- Define rows and columns once -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
 
-        <!-- Example title -->
-        <Label Text="Profile Page"
+        <!-- Top row: Profile title and settings icon -->
+        <Label Text="Profile"
+               Grid.Row="0" Grid.Column="0"
                FontSize="24"
-               HorizontalOptions="Center" />
-
-        <!-- Display the user's profile picture -->
-        <Image Source="{Binding CurrentUser.ProfilePictureUrl}"
-               HeightRequest="100"
-               WidthRequest="100"
-               Aspect="AspectFill"
-               HorizontalOptions="Center" />
-
-        <!-- Display the user's username -->
-        <Label Text="{Binding CurrentUser.Username}"
                FontAttributes="Bold"
-               HorizontalOptions="Center" />
+               TextColor="White"
+               HorizontalOptions="Start"
+               VerticalOptions="Center" />
 
-        <!-- Button to change profile picture -->
-        <Button Text="Change Profile Picture"
-                Command="{Binding ChangeProfilePictureCommand}" />
+        <ImageButton Source="settings.png"
+                     Grid.Row="0" Grid.Column="1"
+                     Command="{Binding SettingsCommand}"
+                     WidthRequest="30"
+                     HeightRequest="30"
+                     Aspect="AspectFit"
+                     HorizontalOptions="End"
+                     VerticalOptions="Center"
+                     BackgroundColor="Transparent" />
 
-        <!-- New: Logout button -->
-        <Button Text="Logout"
-                Command="{Binding LogoutCommand}"
-                BackgroundColor="Red"
-                TextColor="White"
-                HorizontalOptions="Center" />
-    </VerticalStackLayout>
+        <!-- Main content row: Profile picture, username, buttons, etc. -->
+        <ScrollView Grid.Row="1" Grid.ColumnSpan="2">
+            <VerticalStackLayout Spacing="25" Padding="20">
+                <!-- Profile Picture in a circular Frame -->
+                <Frame HasShadow="False"
+                       Padding="-10"
+                       BorderColor="Transparent"
+                       BackgroundColor="Transparent"
+                       CornerRadius="150"
+                       HeightRequest="150"
+                       WidthRequest="150"
+                       HorizontalOptions="Center"
+                       IsClippedToBounds="True">
+                    <Image Source="{Binding CurrentUser.ProfilePictureUrl}"
+                           Aspect="AspectFill"
+                           VerticalOptions="FillAndExpand"
+                           HorizontalOptions="FillAndExpand" />
+                </Frame>
+
+                <!-- Username -->
+                <Label Text="{Binding CurrentUser.Username}"
+                       FontAttributes="Bold"
+                       FontSize="18"
+                       HorizontalOptions="Center"
+                       TextColor="White" />
+
+                <!-- Change Profile Picture Button -->
+                <Button Text="Change Profile Picture"
+                        Command="{Binding ChangeProfilePictureCommand}"
+                        BackgroundColor="#333"
+                        TextColor="White"
+                        CornerRadius="10"
+                        HorizontalOptions="Center"
+                        WidthRequest="200" />
+
+                <!-- Logout Button -->
+                <Button Text="Logout"
+                        Command="{Binding LogoutCommand}"
+                        BackgroundColor="Red"
+                        TextColor="White"
+                        CornerRadius="10"
+                        HorizontalOptions="Center"
+                        WidthRequest="200" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 </ContentPage>

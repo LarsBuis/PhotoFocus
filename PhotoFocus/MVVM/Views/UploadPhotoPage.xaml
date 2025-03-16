@@ -1,40 +1,90 @@
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:viewModels="clr-namespace:PhotoFocus.MVVM.ViewModels"
-             x:Class="PhotoFocus.MVVM.Views.UploadPhotoPage">
+<?xml version="1.0" encoding="utf-8"?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="PhotoFocus.MVVM.Views.UploadPhotoPage"
+    Title="Upload Photo"
+    BackgroundColor="#222431"
+    NavigationPage.HasNavigationBar="True">
+    <ScrollView>
+        <StackLayout Padding="20" Spacing="15">
 
-    <ContentPage.BindingContext>
-        <viewModels:UploadPhotoViewModel />
-    </ContentPage.BindingContext>
+            <!-- Display the selected assignment -->
+            <StackLayout Orientation="Horizontal" Spacing="10">
+                <Label Text="Assignment:" 
+                       FontAttributes="Bold" 
+                       VerticalOptions="Center"
+                       TextColor="White" />
+                <!-- If no assignment is selected, this will be empty -->
+                <Label Text="{Binding SelectedAssignment.Title}" 
+                       FontSize="Medium" 
+                       VerticalOptions="Center" 
+                       TextColor="LightGray" />
+            </StackLayout>
 
-    <VerticalStackLayout Padding="20">
+            <!-- Category selection -->
+            <Label Text="Select Category:" 
+                   TextColor="White" />
+            <Picker ItemsSource="{Binding Categories}" 
+                    SelectedItem="{Binding SelectedCategory}" 
+                    ItemDisplayBinding="{Binding Name}"
+                    TextColor="White" />
 
-        <Picker ItemsSource="{Binding Categories}"
-                ItemDisplayBinding="{Binding Name}"
-                SelectedItem="{Binding SelectedCategory}"
-                Title="Select Category" />
-        
-        <Picker Title="Select Assignment" ItemsSource="{Binding Assignments}"
-        ItemDisplayBinding="{Binding Title}"
-        SelectedItem="{Binding SelectedAssignment}" />
+            <!-- Display the selected image if available -->
+            <Image Source="{Binding SelectedImagePath}" 
+                   Aspect="AspectFill" 
+                   HeightRequest="200" />
 
-        <Button Text="Pick Photo"
-                Command="{Binding PickPhotoCommand}" />
-        <Button Text="Take Photo"
-                Command="{Binding TakePhotoCommand}" />
+            <!-- Buttons for picking and taking photos -->
+            <Button Text="Pick Photo" 
+                    Command="{Binding PickPhotoCommand}"
+                    BackgroundColor="#333"
+                    TextColor="White" />
+            <Button Text="Take Photo" 
+                    Command="{Binding TakePhotoCommand}"
+                    BackgroundColor="#333"
+                    TextColor="White" />
 
-        <Button Text="Generate Image from Pexels"
-        Command="{Binding GeneratePexelsImageCommand}"
-        IsVisible="{Binding IsGenerateImageVisible}" />
+            <!-- Query Options Section -->
+            <StackLayout Padding="10" Spacing="5">
+                <Label Text="Select query option:" 
+                       FontAttributes="Bold" 
+                       TextColor="White"/>
+                <StackLayout Orientation="Horizontal" Spacing="10">
+                    <CheckBox IsChecked="{Binding UseCategoryOnly}" />
+                    <Label Text="Category Only" 
+                           TextColor="White" 
+                           VerticalOptions="Center"/>
+                </StackLayout>
+                <StackLayout Orientation="Horizontal" Spacing="10">
+                    <CheckBox IsChecked="{Binding UseBoth}" />
+                    <Label Text="Category + Assignment" 
+                           TextColor="White" 
+                           VerticalOptions="Center"/>
+                </StackLayout>
+                <StackLayout Orientation="Horizontal" Spacing="10">
+                    <CheckBox IsChecked="{Binding UseAssignmentOnly}" />
+                    <Label Text="Assignment Only" 
+                           TextColor="White" 
+                           VerticalOptions="Center"/>
+                </StackLayout>
+            </StackLayout>
 
+            <!-- Button to generate image from Pexels -->
+            <Button Text="Generate Pexels Image" 
+                    Command="{Binding GeneratePexelsImageCommand}"
+                    BackgroundColor="#333"
+                    TextColor="White" />
 
-        <Button Text="Upload"
-                Command="{Binding UploadCommand}" />
+            <!-- Button to upload photo -->
+            <Button Text="Upload Photo" 
+                    Command="{Binding UploadCommand}"
+                    BackgroundColor="#333"
+                    TextColor="White" />
 
-        <Image Source="{Binding SelectedImagePath}" 
-               Aspect="AspectFill" 
-               HeightRequest="200" />
-
-        <Label Text="{Binding Message}" TextColor="Red" />
-    </VerticalStackLayout>
+            <!-- Display messages -->
+            <Label Text="{Binding Message}" 
+                   TextColor="Red" />
+        </StackLayout>
+    </ScrollView>
 </ContentPage>

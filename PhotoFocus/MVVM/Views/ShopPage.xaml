@@ -3,7 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:PhotoFocus.Services"
              x:Class="PhotoFocus.MVVM.Views.ShopPage"
-             Title="Shop">
+             Title="Shop"
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="#222431">
+
     <ContentPage.Resources>
         <ResourceDictionary>
             <local:BoolToMembershipStatusConverter x:Key="BoolToMembershipStatusConverter" />
@@ -14,43 +17,129 @@
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="25">
 
+            <!-- Shop Title -->
             <Label Text="Shop"
-             FontSize="24"
-             HorizontalOptions="Center" />
+                   FontSize="24"
+                   HorizontalOptions="Center"
+                   TextColor="White" />
 
-            <Frame BackgroundColor="Transparent" BorderColor="Gray" Padding="10">
-                <VerticalStackLayout Spacing="15">
-                    <Label Text="Buy Points"
-                 FontSize="20"
-                 HorizontalOptions="Center" />
-                    <Label Text="{Binding CurrentUser.Points, StringFormat='You currently have {0} points.'}"
-                 HorizontalOptions="Center" />
-                    <Label Text="Each point costs 1 euro."
-                 HorizontalOptions="Center" />
-                    <Button Text="Buy 1 Point" 
-                  Command="{Binding BuyCommand}" />
-                </VerticalStackLayout>
-            </Frame>
+            <!-- Display current points and membership duration -->
+            <Label Text="{Binding CurrentPoints, StringFormat='You have {0} points'}"
+                   FontSize="16"
+                   HorizontalOptions="Center"
+                   TextColor="White" />
+            <Label Text="{Binding MembershipDuration, StringFormat='Membership Duration: {0}'}"
+                   FontSize="16"
+                   HorizontalOptions="Center"
+                   TextColor="White" />
 
+            <!-- Membership Section (displayed first) -->
             <Frame BackgroundColor="Transparent" BorderColor="Gray" Padding="10">
                 <VerticalStackLayout Spacing="15">
                     <Label Text="Membership"
-                 FontSize="20"
-                 HorizontalOptions="Center" />
+                           FontSize="20"
+                           HorizontalOptions="Center"
+                           TextColor="White" />
                     <Label Text="{Binding IsMember, Converter={StaticResource BoolToMembershipStatusConverter}}"
-                 HorizontalOptions="Center" />
+                           HorizontalOptions="Center"
+                           TextColor="White" />
                     <Label Text="Purchase a 30-day membership."
-                 HorizontalOptions="Center" />
+                           HorizontalOptions="Center"
+                           TextColor="White" />
                     <Button Text="Buy Membership" 
-                  Command="{Binding BuyMembershipCommand}"
-                  IsEnabled="{Binding IsMember, Converter={StaticResource InverseBooleanConverter}}" />
+                            Command="{Binding BuyMembershipCommand}"
+                            IsEnabled="{Binding IsMember, Converter={StaticResource InverseBooleanConverter}}"
+                            TextColor="White" />
                 </VerticalStackLayout>
             </Frame>
 
+            <!-- Points Purchase Section -->
+            <Label Text="Buy Points"
+                   FontSize="20"
+                   HorizontalOptions="Center"
+                   TextColor="White" />
+
+            <!-- 1 Point Card -->
+            <Frame BackgroundColor="Transparent" BorderColor="Gray" Padding="10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <!-- Left: Description -->
+                    <Label Text="1 Point"
+                           Grid.Column="0"
+                           FontSize="16"
+                           TextColor="White"
+                           VerticalOptions="Center" />
+                    <!-- Right: Cost and Buy Button -->
+                    <VerticalStackLayout Grid.Column="1" HorizontalOptions="End" VerticalOptions="Center" Spacing="5">
+                        <Label Text="1 Euro"
+                               FontSize="14"
+                               TextColor="White"
+                               HorizontalOptions="End" />
+                        <Button Text="Buy" 
+                                Command="{Binding BuyOnePointCommand}"
+                                TextColor="White"
+                                HorizontalOptions="End" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+
+            <!-- 5 Points Card -->
+            <Frame BackgroundColor="Transparent" BorderColor="Gray" Padding="10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Label Text="5 Points"
+                           Grid.Column="0"
+                           FontSize="16"
+                           TextColor="White"
+                           VerticalOptions="Center" />
+                    <VerticalStackLayout Grid.Column="1" HorizontalOptions="End" VerticalOptions="Center" Spacing="5">
+                        <Label Text="5 Euros"
+                               FontSize="14"
+                               TextColor="White"
+                               HorizontalOptions="End" />
+                        <Button Text="Buy" 
+                                Command="{Binding BuyFivePointsCommand}"
+                                TextColor="White"
+                                HorizontalOptions="End" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+
+            <!-- 10 Points Card (with discount) -->
+            <Frame BackgroundColor="Transparent" BorderColor="Gray" Padding="10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Label Text="10 Points"
+                           Grid.Column="0"
+                           FontSize="16"
+                           TextColor="White"
+                           VerticalOptions="Center" />
+                    <VerticalStackLayout Grid.Column="1" HorizontalOptions="End" VerticalOptions="Center" Spacing="5">
+                        <Label Text="7 Euros (30% off)"
+                               FontSize="14"
+                               TextColor="White"
+                               HorizontalOptions="End" />
+                        <Button Text="Buy" 
+                                Command="{Binding BuyTenPointsCommand}"
+                                TextColor="White"
+                                HorizontalOptions="End" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+
             <Label Text="{Binding Message}"
-             FontAttributes="Italic"
-             TextColor="Green"
-             HorizontalOptions="Center" />
+                   FontAttributes="Italic"
+                   TextColor="Green"
+                   HorizontalOptions="Center" />
 
         </VerticalStackLayout>
     </ScrollView>

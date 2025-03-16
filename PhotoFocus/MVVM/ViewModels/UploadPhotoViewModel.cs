@@ -59,14 +59,7 @@ namespace PhotoFocus.MVVM.ViewModels
             set => SetProperty(ref _message, value);
         }
 
-        // New properties for assignments
-        private ObservableCollection<Assignment> _assignments;
-        public ObservableCollection<Assignment> Assignments
-        {
-            get => _assignments;
-            set => SetProperty(ref _assignments, value);
-        }
-
+        // We still hold the selected assignment (set externally)
         private Assignment _selectedAssignment;
         public Assignment SelectedAssignment
         {
@@ -74,7 +67,51 @@ namespace PhotoFocus.MVVM.ViewModels
             set => SetProperty(ref _selectedAssignment, value);
         }
 
-        // Commands
+        // New properties for modifying the API query:
+        // These properties are mutually exclusive.
+        private bool _useCategoryOnly;
+        public bool UseCategoryOnly
+        {
+            get => _useCategoryOnly;
+            set
+            {
+                if (SetProperty(ref _useCategoryOnly, value) && value)
+                {
+                    UseBoth = false;
+                    UseAssignmentOnly = false;
+                }
+            }
+        }
+
+        private bool _useAssignmentOnly;
+        public bool UseAssignmentOnly
+        {
+            get => _useAssignmentOnly;
+            set
+            {
+                if (SetProperty(ref _useAssignmentOnly, value) && value)
+                {
+                    UseCategoryOnly = false;
+                    UseBoth = false;
+                }
+            }
+        }
+
+        private bool _useBoth;
+        public bool UseBoth
+        {
+            get => _useBoth;
+            set
+            {
+                if (SetProperty(ref _useBoth, value) && value)
+                {
+                    UseCategoryOnly = false;
+                    UseAssignmentOnly = false;
+                }
+            }
+        }
+
+        // Commands for picking, taking, uploading photos, etc.
         public ICommand PickPhotoCommand { get; }
         public ICommand TakePhotoCommand { get; }
         public ICommand UploadCommand { get; }
@@ -85,31 +122,23 @@ namespace PhotoFocus.MVVM.ViewModels
 
         public UploadPhotoViewModel()
         {
+            // Set default option; you could default to any
+            UseCategoryOnly = true;
+
             PickPhotoCommand = new Command(async () => await PickPhotoAsync());
             TakePhotoCommand = new Command(async () => await TakePhotoAsync());
             UploadCommand = new Command(async () => await UploadAsync());
             GeneratePexelsImageCommand = new Command(async () => await GeneratePexelsImageAsync());
 
             LoadCategories();
-            LoadAssignments();
         }
 
         private async void LoadCategories()
         {
             var cats = await DatabaseService.Database.Table<Category>().ToListAsync();
             Categories = new ObservableCollection<Category>(cats);
-
             if (Categories.Count > 0)
                 SelectedCategory = Categories[0];
-        }
-
-        private async void LoadAssignments()
-        {
-            var assigns = await DatabaseService.Database.Table<Assignment>().ToListAsync();
-            Assignments = new ObservableCollection<Assignment>(assigns);
-
-            if (Assignments.Count > 0)
-                SelectedAssignment = Assignments[0];
         }
 
         private async Task GeneratePexelsImageAsync()
@@ -122,10 +151,31 @@ namespace PhotoFocus.MVVM.ViewModels
                     return;
                 }
 
+                // Build the query term based on the chosen checkboxes:
+                string queryTerm;
+                if (UseCategoryOnly)
+                {
+                    queryTerm = SelectedCategory.Name;
+                }
+                else if (UseAssignmentOnly)
+                {
+                    queryTerm = SelectedAssignment != null ? SelectedAssignment.Title : "";
+                }
+                else if (UseBoth)
+                {
+                    queryTerm = SelectedCategory.Name + " " + (SelectedAssignment != null ? SelectedAssignment.Title : "");
+                }
+                else
+                {
+                    // Default to category only.
+                    queryTerm = SelectedCategory.Name;
+                }
+
+                // Escape the query term for the URL.
+                queryTerm = Uri.EscapeDataString(queryTerm);
+
                 var random = new Random();
                 int randomPage = random.Next(1, 25);
-
-                string queryTerm = Uri.EscapeDataString(SelectedCategory.Name);
                 string requestUrl = $"https://api.pexels.com/v1/search?query={queryTerm}&per_page=1&page={randomPage}";
 
                 var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
@@ -152,7 +202,7 @@ namespace PhotoFocus.MVVM.ViewModels
 
                 if (photos.GetArrayLength() == 0)
                 {
-                    Message = $"No images found on Pexels for {SelectedCategory.Name}.";
+                    Message = $"No images found on Pexels for query '{queryTerm}'.";
                     return;
                 }
 
@@ -167,7 +217,7 @@ namespace PhotoFocus.MVVM.ViewModels
                 var localPath = await DownloadImageToLocalPath(originalUrl);
                 SelectedImagePath = localPath;
 
-                Message = $"{SelectedCategory.Name} image fetched from Pexels!";
+                Message = $"{queryTerm} image fetched from Pexels!";
             }
             catch (Exception ex)
             {
@@ -254,7 +304,6 @@ namespace PhotoFocus.MVVM.ViewModels
                 return;
             }
 
-            // Pass the selected assignment's ID (or null if none) to the AddPhoto method.
             bool success = await DatabaseService.AddPhoto(_currentUserId, SelectedCategory.Id, SelectedImagePath, SelectedAssignment?.Id);
             if (success)
             {
