@@ -1,15 +1,17 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="PhotoFocus.MVVM.Views.CreateAssignmentPage"
-             Title="Create Assignment">
+             Title="Create Assignment"
+             BackgroundColor="#222431"
+             NavigationPage.HasNavigationBar="True">
     <ContentPage.Content>
         <StackLayout Padding="20">
             <Entry Placeholder="Assignment Title" Text="{Binding Title}" />
             <Editor Placeholder="Description" HeightRequest="100" Text="{Binding Description}" />
-            <Label Text="Select Duration:" />
+            <Label Text="Select Duration:" TextColor="LightGrey"/>
             <!-- Picker with options such as "7 days" and "2 weeks" -->
             <Picker Title="Duration" ItemsSource="{Binding DurationOptions}" 
-                    SelectedItem="{Binding SelectedDuration}" />
+                    SelectedItem="{Binding SelectedDuration}" TextColor="LightGrey" />
             <Button Text="Create Assignment" Command="{Binding CreateAssignmentCommand}" />
             <Label Text="{Binding Message}" TextColor="Red" />
         </StackLayout>

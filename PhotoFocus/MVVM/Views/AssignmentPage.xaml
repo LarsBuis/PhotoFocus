@@ -35,7 +35,7 @@
                            Padding="10" 
                            CornerRadius="10" 
                            HasShadow="True" 
-                           BackgroundColor="#2F313D" 
+                           BackgroundColor="#333" 
                            BorderColor="Transparent">
                         <Frame.GestureRecognizers>
                             <TapGestureRecognizer 

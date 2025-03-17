@@ -4,21 +4,23 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="PhotoFocus.MVVM.Views.LoginPage"
     Title="Login"
-    xmlns:viewmodels="clr-namespace:PhotoFocus.MVVM.ViewModels">
+    xmlns:viewmodels="clr-namespace:PhotoFocus.MVVM.ViewModels"
+                 BackgroundColor="#222431"
+             NavigationPage.HasNavigationBar="True">
 
     <ContentPage.BindingContext>
         <viewmodels:LoginViewModel />
     </ContentPage.BindingContext>
 
     <VerticalStackLayout Padding="20" Spacing="15">
-        <Label Text="Username" />
-        <Entry Text="{Binding Username}" Placeholder="Enter username" />
+        <Label Text="Username" TextColor="White"/>
+        <Entry Text="{Binding Username}" Placeholder="Enter username" TextColor="White" />
 
-        <Label Text="Password" />
-        <Entry Text="{Binding Password}" Placeholder="Enter password" IsPassword="True" />
+        <Label Text="Password" TextColor="white"/>
+        <Entry Text="{Binding Password}" Placeholder="Enter password" IsPassword="True" TextColor="White"/>
 
-        <Button Text="Login" Command="{Binding LoginCommand}" />
-        <Button Text="Go to Register" Command="{Binding GoToRegisterCommand}" />
+        <Button Text="Login" Command="{Binding LoginCommand}" BackgroundColor="#333" />
+        <Button Text="Go to Register" Command="{Binding GoToRegisterCommand}" BackgroundColor="#333" />
 
         <Label Text="{Binding Message}" TextColor="Red"/>
     </VerticalStackLayout>

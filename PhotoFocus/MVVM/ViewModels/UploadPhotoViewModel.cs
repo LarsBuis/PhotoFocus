@@ -151,7 +151,6 @@ namespace PhotoFocus.MVVM.ViewModels
                     return;
                 }
 
-                // Build the query term based on the chosen checkboxes:
                 string queryTerm;
                 if (UseCategoryOnly)
                 {
@@ -167,11 +166,9 @@ namespace PhotoFocus.MVVM.ViewModels
                 }
                 else
                 {
-                    // Default to category only.
                     queryTerm = SelectedCategory.Name;
                 }
 
-                // Escape the query term for the URL.
                 queryTerm = Uri.EscapeDataString(queryTerm);
 
                 var random = new Random();

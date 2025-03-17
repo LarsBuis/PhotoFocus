@@ -49,7 +49,8 @@
                     <Button Text="Buy Membership" 
                             Command="{Binding BuyMembershipCommand}"
                             IsEnabled="{Binding IsMember, Converter={StaticResource InverseBooleanConverter}}"
-                            TextColor="White" />
+                            TextColor="White" 
+                            BackgroundColor="#28316B"/>
                 </VerticalStackLayout>
             </Frame>
 
@@ -81,7 +82,8 @@
                         <Button Text="Buy" 
                                 Command="{Binding BuyOnePointCommand}"
                                 TextColor="White"
-                                HorizontalOptions="End" />
+                                HorizontalOptions="End"
+                                BackgroundColor="#555"/>
                     </VerticalStackLayout>
                 </Grid>
             </Frame>
@@ -106,7 +108,8 @@
                         <Button Text="Buy" 
                                 Command="{Binding BuyFivePointsCommand}"
                                 TextColor="White"
-                                HorizontalOptions="End" />
+                                HorizontalOptions="End"
+                                BackgroundColor="#555"/>
                     </VerticalStackLayout>
                 </Grid>
             </Frame>
@@ -131,7 +134,8 @@
                         <Button Text="Buy" 
                                 Command="{Binding BuyTenPointsCommand}"
                                 TextColor="White"
-                                HorizontalOptions="End" />
+                                HorizontalOptions="End"
+                                BackgroundColor="#555"/>
                     </VerticalStackLayout>
                 </Grid>
             </Frame>
